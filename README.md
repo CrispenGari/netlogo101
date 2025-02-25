@@ -39,3 +39,25 @@ end
 ```
 
 4. Go to the interface and add a button that says when you click it it will run the following command.
+
+### ABM (Agent Base Modeling)
+
+You can load the models right straight from NetLogo.
+
+1. Open NetLogo
+2. Click on `File > Models Library` or `Ctrl + M`
+3. Select the model that you want to simulate
+4. For example we are going to show the simulation using the `"Wolf Sheep Predation"` click that and the model will be loaded.
+5. Click the `Setup` button
+6. Then the `Agents` will then appear in the environment.
+7. If you click the `Go` button then the simulation will start happening where the wolfs will be eating sheeps and sheeps will be eating grass, and the visualization will be shown with time.
+
+> Note that if you want to see the code behind the simulation you will have to click the `code` tab.
+
+### Why ABM?
+
+- They makes the invisible to become visible.
+- It makes things falsifiable. Meaning that it can be used to prove something wrong by an experiment or observation
+- Makes us review opinions and actions from different angles using different parameters.
+- They make you allows you to make simulation of the society.
+-
