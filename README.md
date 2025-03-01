@@ -40,6 +40,27 @@ end
 
 4. Go to the interface and add a button that says when you click it it will run the following command.
 
+### Class Example:
+
+```shell
+to hello
+  ;; this is a simple hello world message to the console
+  print "Hello World!!"
+end
+
+TO BYE
+  ;;
+  PrinT("Good Bye")
+END
+
+to setup
+  ;; clearing the env
+  clear-all
+  ;; let's create our very first title
+  create-turtles 1
+end
+```
+
 ### ABM (Agent Base Modeling)
 
 You can load the models right straight from NetLogo.
