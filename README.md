@@ -60,4 +60,21 @@ You can load the models right straight from NetLogo.
 - It makes things falsifiable. Meaning that it can be used to prove something wrong by an experiment or observation
 - Makes us review opinions and actions from different angles using different parameters.
 - They make you allows you to make simulation of the society.
--
+
+### Main types of entities in NetLogo.
+
+- turtles (agents) - moving agent
+- Patches - cell grid in the environment
+- Links - distance between turtles
+
+> Ref: https://wisc.pb.unizin.org/agent-based-evolutionary-game-dynamics/chapter/i-5/
+
+- Interacting with the turtles.
+- Using the command center to change turtles.
+
+```shell
+set size 2
+set color red # ask turtles [ set color red]
+ask wolf 45 [set size 3]
+ask wolf 45 [die]
+```
