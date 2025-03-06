@@ -188,7 +188,7 @@ Reporters are just like procedures however they return a value. Let's create a r
 to go
   let l [2 3 4 6]
   print word "The mean of the list is: " calculate-mean l
-
+  print word "A random number in a list: " one-of l ;; allows you to random select an element of a list.
 end
 
 to-report calculate-mean [l]
@@ -338,6 +338,57 @@ to go
     forward 1
   ]
   tick
+end
+```
+
+### Simulating Conway's Game of Life
+
+In this section we are going to implement the Conway's Game of life using netlogo. The rules of the game can be found on: https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
+
+Here are the basic Rules:
+
+1. Any live cell with fewer than two live neighbors dies, as if by underpopulated.
+2. Any live cell with two or three live neighbors lives on to the next generation.
+3. Any live cell with more than three live neighbors dies, as if by overpopulation.
+4. Any dead cell with exactly three live neighbors becomes a live cell, as if by reproduction.
+
+From this game we are going to use patches in netlogo to build the game. Below is the procedure that does that.
+
+```shell
+patches-own [new-color]
+to setup
+  clear-all
+  reset-ticks
+  ;; we want to set the patches color to be a random number where
+  ;; green patch - is alive
+  ;; yello patch - represent dead
+  ask patches [
+    set pcolor one-of [green yellow]
+  ]
+end
+
+
+to go
+ ;; updating the tick
+  tick
+  ask patches [
+    let alive-neighbors count (neighbors with [pcolor = green])
+    set new-color pcolor
+    ;; if and only if the patch is alive we can do this
+    ifelse pcolor = green [
+      if (alive-neighbors < 2 or alive-neighbors > 3) [
+        ;; the patch is alive kill it
+        set new-color yellow
+      ]
+    ][ ;; the else part: the patch is already dead
+      if alive-neighbors = 3 [
+        set new-color green
+      ]
+    ]
+  ]
+  ask patches [
+    set pcolor new-color
+  ]
 end
 ```
 

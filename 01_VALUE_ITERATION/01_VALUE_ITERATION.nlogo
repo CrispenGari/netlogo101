@@ -1,29 +1,133 @@
+extensions [table] ;; importing the hashtable
 
-breed [mice mouse]
-to setup
-  clear-all
-  create-mice 5 [
-    setxy random-xcor random-ycor
-    pen-down
-  ]
+globals [utility headings actions] ;; the global variable that holds the utility,
+;; headings and actions
+
+to put-utility[x y dir u]
+  let state (list x y dir) ; the key of the utility
+  table:put utility state u ; stores the key state and value utility in a hash table
 end
 
-to draw-square
-  repeat 4 [
-    forward 5
-    right  90
+to-report get-utility[x y dir]
+  let state (list x y dir)
+  if (table:has-key? utility state) [
+    report table:get utility state
+  ]
+  put-utility x y dir 0
+  report 0
+end
+;; state of the world x, y, heading [0 90 180 270]
+;; actions: "fd 1", "lt 90", "rt 90"
+
+to setup
+  clear-all
+  reset-ticks
+  ask patches [
+    ;; generate a random number between 0 and 10 (10 so thet we can
+    ;; accomodate non-rewarding patches.
+    let rand random 10
+    set pcolor white
+    if rand = 0 [ set pcolor red ]
+    if rand = 1 [ set pcolor green ]
+  ]
+  set actions ["fd 1" "lt 90" "rt 90"]
+  set headings [0 90 180 270]
+  set utility table:make ; create a new hash table during setup
+
+  create-turtles num-turtles [
+    set color blue
+    setxy random-pxcor random-pycor
+    set heading one-of headings
+    set shape "person"
   ]
 end
 
 to go
-  let l [2 3 4 6]
-  print word "The mean of the list: " l w" is : " calculate-mean l
-
+  tick
+  ask turtles [
+    take-best-action
+  ]
 end
 
-to-report calculate-mean [l]
-  report mean l
+to value-iteration
+  let delta 100 ; set a delta value to 10000
+  let agent 0 ;; create a new temporary urgent
+  create-turtles 1 [
+    set agent self ; set the agent to be the created turtle
+    set hidden? true
+  ]
+  while [delta > epsilon * (1 - gamma) / gamma][
+    set delta 0
+    ask patches [
+      foreach headings [ _dir ->
+        ; lets get the state
+        let x pxcor
+        let y pycor
+        let dir _dir ; set the heading to the current heading
+        let best-action 0
+        ask agent [
+          setxy x y
+          set heading dir
+          let best-utility item 1 get-best-action ;; the second item of the list is the best action
+                                                  ;; we can get the reward of the current state
+          let reward get-reward
+          let current-utility get-utility x y dir
+          let new-utility (reward + gamma * best-utility)
+          ;; we update our utility
+          put-utility x y dir new-utility
+          if (abs (current-utility - new-utility) > delta)[
+            set delta abs (current-utility - new-utility)
+          ]
+        ]
+      ]
+    ]
+    ;; let's display the gamma
+    show delta
+    ;; and we can plot the values
+    plot delta
+  ]
+  ;; kill the agent
+  ask agent [die]
 end
+
+
+;; turtle functions
+
+to-report get-best-action
+  ; report the agent's best action based on it's x, y, heading and current utility
+  ;; & report [best-action, utility]
+  let x xcor
+  let y ycor
+  let dir heading
+  let best-action 0
+  let best-utility -1000000
+  foreach actions [ action ->
+    run action ; runs the current action command e.g "rt 90"
+    let utility-of-action get-utility xcor ycor heading
+    if (utility-of-action > best-utility) [
+      set best-action action
+      set best-utility utility-of-action
+    ]
+    ; after checking the best actions we need to reset the agent's original state because we are not taking any action rather we are trying to get the best action
+    setxy x y
+    set heading dir
+  ]
+  report (list best-action best-utility)
+end
+
+to-report get-reward
+  if pcolor = green [report 10]
+  if pcolor = red [report -10]
+  report 0
+end
+
+to take-best-action
+  let best-action first get-best-action ; you can say: let best-action item 0 get-best-action
+  run best-action
+end
+
+
+
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -53,10 +157,10 @@ ticks
 30.0
 
 BUTTON
-137
-33
-200
-66
+11
+36
+74
+69
 NIL
 setup
 NIL
@@ -70,42 +174,42 @@ NIL
 1
 
 SLIDER
-36
-150
-208
-183
-num-turtles
-num-turtles
-10
-100
-10.0
+12
+80
+184
+113
+gamma
+gamma
+0
 1
+0.9
+.01
 1
 NIL
 HORIZONTAL
 
 SLIDER
-36
+12
+116
 184
-208
-217
-attraction
-attraction
+149
+epsilon
+epsilon
 0
 1
 0.1
-0.01
+.01
 1
 NIL
 HORIZONTAL
 
 BUTTON
-96
-54
-159
-87
+82
+35
+190
+68
 NIL
-go
+value-iteration
 NIL
 1
 T
@@ -116,10 +220,60 @@ NIL
 NIL
 1
 
+PLOT
+667
+10
+1109
+275
+delta
+time
+delta
+0.0
+10.0
+0.0
+10.0
+true
+true
+"" ""
+PENS
+"delta" 1.0 0 -3844592 true "" ""
+
+SLIDER
+11
+152
+183
+185
+num-turtles
+num-turtles
+1
+100
+30.0
+1
+1
+NIL
+HORIZONTAL
+
+BUTTON
+17
+209
+80
+242
+NIL
+go
+NIL
+1
+T
+OBSERVER
+NIL
+G
+NIL
+NIL
+1
+
 @#$#@#$#@
 ## WHAT IS IT?
 
-- Here is my first model.
+(a general understanding of what the model is trying to show or explain)
 
 ## HOW IT WORKS
 
@@ -325,7 +479,7 @@ false
 Polygon -7500403 true true 150 15 15 120 60 285 240 285 285 120
 
 person
-true
+false
 0
 Circle -7500403 true true 110 5 80
 Polygon -7500403 true true 105 90 120 195 90 285 105 300 135 300 150 225 165 300 195 300 210 285 180 195 195 90
