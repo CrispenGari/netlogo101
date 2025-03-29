@@ -8,7 +8,7 @@ In this first part we are going to implement a simple simulation of `Covid19` di
 
 1. `infectious rate` - a value between 0 and 1 which indicates how quickly the infection can be spread.
 2. `population` - the amount of people in the environment
-3. `masks` - are people wearing masks or not
+3. `masks` - are people wearing masks or not, this affects the infectious rate by reducing it by `50%`.
 
 We are going to plot the following:
 
@@ -104,6 +104,14 @@ The whole code of the first part will be found in the [`00_DISEASE_SPREAD.nlogo`
 
 ### PART 2 - Taking into considerations come variables.
 
-In this section we are going to take into consideration some other variables and add more plots to our simulation environment.
+In this section we are going to take into consideration some other variables and add more plots to our simulation environment. Here are some of the variables that we will take into considerations.
 
-### PART 3 - COVID Spread in Cells
+1. `Incubation period`: Time between infection and symptom onset.
+2. `Infectious period`: Duration a person remains contagious.
+3. `Immunity duration`: Duration of immunity post-infection or vaccination.
+4. `Social distancing measures`: Effectiveness of lockdowns, quarantine, and isolation.
+5. `Vaccination rate`: Percentage of population vaccinated over time.
+
+### PART 3 - COVID Spread and Death of People
+
+### PART 4 - COVID Spread in Cells
