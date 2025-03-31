@@ -1,8 +1,8 @@
-globals [%infected %health %incubated]
+globals [%infected %health %incubated dead recovered]
 
 breed [humans human]
 
-humans-own [inc-p ims vaccinated?]
+humans-own [inc-p ims vaccinated? sick-for]
 ;; incubation period, imune system strength
 
 to setup
@@ -12,9 +12,10 @@ to setup
     setxy random-xcor random-ycor
     set shape "person"
     set color green
-    set ims ((random 9) + 1) / 10
+    set ims random-float 1.000001 ;; generate a random number that include 1
     set inc-p 0
     set vaccinated? false
+    set sick-for 0
   ]
   ask one-of humans [set color red]
 
@@ -25,6 +26,8 @@ to setup
   set %infected calculate-percentage n-infected
   set %health calculate-percentage n-health
   set %incubated calculate-percentage n-incubated
+  set dead 0
+  set recovered 0
 end
 
 
@@ -49,13 +52,21 @@ to go
       let %rate-of-infection %infectious
 
       ifelse mask-on [ set %rate-of-infection (%infectious * .8)][ set %rate-of-infection (%rate-of-infection * 1)]
-      ;; if you are vaccinated that boosts your immune system with a certain fraction (0. - .2)
-
-      if vaccinated? [set ims ims + ((random 2) + 1) / 10]
+      ;; if you are vaccinated that boosts your immune system with a certain small fraction
+      
+      if vaccinated? [
+        let x random-float .01
+        ifelse ims + x > 1[
+           set ims 1
+        ][
+          set ims ims + x
+        ]
+      ]
 
       if (random 100) / 100 < %rate-of-infection[
         if ims < 0.95 [
           ;; the incubation period starts
+          set sick-for sick-for + 1
           set color yellow
         ]
       ]
@@ -65,6 +76,7 @@ to go
   ;; will get infected
 
   ask humans with [color = yellow][
+    set sick-for sick-for + 1
     if inc-p != incubation-period [set inc-p  inc-p + 1]
     if inc-p = incubation-period [
       set color red
@@ -74,7 +86,43 @@ to go
   ;; humans can get vaccinated if they haven't
   ask n-of ((count humans with [not vaccinated?]) * vaccination-rate) humans with [not vaccinated?] [
     set vaccinated? true
+
   ]
+
+  ;; to kill humans that are sick we check for the following statuses
+  ;; 1. sick-for - how many days have you been sick
+  ;; 2. vaccinated - are you vaccinated or not
+  ;; 3. ims - the strength of the immune system
+
+  ask humans with [color = yellow or color = red][
+    ifelse ims < .1 [
+      set dead dead + 1
+      die
+    ][
+      ifelse vaccinated? = true[
+         if (sick-for < 20 and ims > .5)[
+          ;; you will recover
+          set sick-for 0
+          set color green
+          set recovered recovered + 1
+          set inc-p 0
+        ]
+        if ims > .95[
+          set color green
+          set inc-p 0
+          set recovered recovered + 1
+        ]
+      ][
+
+        if (sick-for > 20 and ims < .7)[
+          ;; if you have been sick for more than 20 days then you should die
+          set dead dead + 1
+          die
+        ]
+      ]
+    ]
+  ]
+
 
   ;; then we update our health and infected % values
   let n-infected count humans with [color = red]
@@ -173,9 +221,9 @@ NIL
 
 MONITOR
 15
-325
+333
 86
-370
+378
 NIL
 %infected
 2
@@ -183,10 +231,10 @@ NIL
 11
 
 MONITOR
-95
-325
-155
-370
+83
+333
+143
+378
 NIL
 %health
 2
@@ -194,10 +242,10 @@ NIL
 11
 
 MONITOR
-85
-549
-157
-594
+70
+543
+142
+588
 population
 count turtles
 17
@@ -213,7 +261,7 @@ population
 population
 10
 300
-150.0
+245.0
 1
 1
 NIL
@@ -228,7 +276,7 @@ SLIDER
 %infectious
 0
 1
-0.8
+0.9
 .1
 1
 NIL
@@ -241,14 +289,14 @@ SWITCH
 137
 mask-on
 mask-on
-0
+1
 1
 -1000
 
 PLOT
 15
 378
-307
+335
 540
 Disease Spread
 time (days)
@@ -266,10 +314,10 @@ PENS
 "incubated" 1.0 0 -1184463 true "" "plot %incubated * 100"
 
 MONITOR
-17
-548
-74
-593
+15
+542
+72
+587
 Days
 ticks
 17
@@ -298,7 +346,7 @@ SWITCH
 177
 social-distance
 social-distance
-0
+1
 1
 -1000
 
@@ -311,17 +359,17 @@ vaccination-rate
 vaccination-rate
 0
 1
-0.0
+0.2
 .1
 1
 NIL
 HORIZONTAL
 
 MONITOR
-159
-325
-240
-370
+143
+332
+224
+377
 NIL
 %incubated
 2
@@ -337,11 +385,66 @@ infectious-period
 infectious-period
 2
 10
-2.0
+5.0
 1
 1
 NIL
 HORIZONTAL
+
+MONITOR
+142
+543
+216
+588
+vaccinated
+count humans with [vaccinated? = true]
+0
+1
+11
+
+MONITOR
+218
+543
+315
+588
+not vaccinated
+count humans with [not vaccinated?]
+0
+1
+11
+
+MONITOR
+223
+332
+280
+377
+NIL
+dead
+0
+1
+11
+
+MONITOR
+280
+332
+337
+377
+alive
+population - dead
+17
+1
+11
+
+MONITOR
+338
+332
+409
+377
+recovered
+recovered
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
