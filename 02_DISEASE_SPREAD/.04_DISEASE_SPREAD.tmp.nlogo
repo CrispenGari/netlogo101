@@ -15,7 +15,6 @@ thrombocytes-own [ health ]
 viruses-own [ toxic ]
 
 
-
 to setup
   clear-all
   reset-ticks
@@ -100,8 +99,10 @@ to go
       set toxic random-float 1
     ]
   ]
-  if leukocytes < n-cells * .35[
-stop]
+ ;; if there are only 35% of white blood cells in the body then we stop the program
+  if count leukocytes < n-cells * .35[
+    stop
+  ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -157,7 +158,7 @@ n-cells
 n-cells
 200
 1000
-340.0
+1000.0
 5
 1
 NIL
@@ -172,7 +173,7 @@ n-virus
 n-virus
 1
 100
-50.0
+7.0
 1
 1
 NIL

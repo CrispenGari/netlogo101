@@ -1,113 +1,84 @@
-
-;;1. Red Blood Cells (Erythrocytes) - Carry oxygen from the lungs to the body and return carbon dioxide for exhalation.
-;; 2. White Blood Cells (Leukocytes) – White blood cells help fight infections and clear debris in the lungs.
-;; 3. Platelets (Thrombocytes) Function: Help with blood clotting and wound healing.
-
-
-breed [erythrocytes erythrocyte]
-breed [leukocytes leukocyte]
-breed [thrombocytes thrombocyte]
-breed [viruses virus]
-
-erythrocytes-own [ health ]
-leukocytes-own [ health ]
-thrombocytes-own [ health ]
-viruses-own [ toxic ]
+extensions [ csv ]
+globals [file-name cwd df]
+turtles-own [energy]
 
 to setup
-  clear-all
+  ca
+  set cwd user-directory
+  set file-name (word cwd "\\simulation_data.csv")
+  set df csv:from-string "tick,id,x,y,energy\n"
+  crt 10 [
+    setxy random-xcor random-ycor
+    set energy random 100
+    set shape "flower"
+  ]
   reset-ticks
-  ask patches [set pcolor pink]
-  create-thrombocytes n-cells [
-    setxy random-xcor random-ycor
-    set shape "dot"
-    set color yellow
-    set health random-float 1
-    set size 2
-  ]
-  create-erythrocytes n-cells [
-    setxy random-xcor random-ycor
-    set shape "dot"
-    set color red
-    set health random-float 1
-     set size 2
-  ]
-  create-leukocytes n-cells [
-    setxy random-xcor random-ycor
-    set shape "dot"
-    set color white
-    set health random-float 1
-     set size 2
-  ]
-  create-viruses n-virus [
-    setxy random-xcor random-ycor
-    set shape "dot"
-    set color green
-    set toxic random-float 1
-    set size 1.5
-  ]
+  print(df)
 end
 
 to go
-  tick
-  ;; spread the viruses
-  ask turtles [
-    fd random 5
-    rt random 361
-    lt random 361
-  ]
-  ask viruses [
-    let toxicity toxic
-    let killed false
-    ask other turtles-here with [breed != viruses][
-      ifelse breed = leukocytes[
-        ;; it's a white blood cell
-        ifelse toxicity < health[
-          set killed true
-        ][
-          set breed viruses
-          set color green
-          set size 1.5
-          set shape "dot"
-          set toxic random-float 1
-        ]
-      ][
-        if toxicity > health [
-          set breed viruses
-          set color green
-          set size 1.5
-          set shape "dot"
-          set toxic random-float 1
-        ]
-      ]
 
-    ]
+  ask turtles [
+    move
+    set energy energy - 1
   ]
-  ; if a virus met a white blood cell it should be faught
-  ask leukocytes [
-    let value health
-    ask other viruses-here[
-      if value > toxic[
-        set toxic toxic - random-float 1
+  record-data
+  tick
+  if ticks > 50 [
+    csv:to-file file-name df
+    stop
+  ] ;; we stop when we collected 50 rows of data
+end
+
+to move
+  rt random 360
+  lt random 360
+  fd 1
+end
+
+to record-data
+  ask turtles [
+    let row csv:from-string (word ticks "," who "," xcor "," ycor "," energy)
+    set df lput (first row) df
+  ]
+end
+
+
+to load-data
+  let data csv:from-file file-name
+  foreach  but-first data [ row ->
+    ;; The but-first will allow us to skip the headers
+    ;; each row has  [tick,id,x,y,energy]
+    let tick-count item 0 row
+    let turtle-id item 1 row
+    let x item 2 row
+    let y item 3 row
+    let energy-level item 4 row
+
+    ;; Find or create the turtle and set its properties
+    if not any? turtles with [who = turtle-id] [
+      create-turtles 1 [
+        set who turtle-id
+        set shape "flower"
       ]
     ]
-  ]
- ;; if a virus met another virus then both virus will have new toxicity
- ask viruses [
-    ask other viruses-here[
-      set toxic random-float 1
+    ask turtle turtle-id [
+      setxy x y
+      set energy energy-level
     ]
   ]
- ;; if there are only 35% of white blood cells in the body then we stop the program
-  if count leukocytes < n-cells * .35[
-    stop
-  ]
+end
+
+
+to stop-simulation
+  csv:to-file file-name df
+  stop
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-397
+210
 10
-834
+647
 448
 -1
 -1
@@ -132,10 +103,10 @@ ticks
 30.0
 
 BUTTON
-20
-46
-83
-79
+9
+11
+72
+44
 NIL
 setup
 NIL
@@ -148,108 +119,30 @@ NIL
 NIL
 1
 
-SLIDER
-20
-84
-192
-117
-n-cells
-n-cells
-200
-1000
-1000.0
-5
-1
-NIL
-HORIZONTAL
-
-SLIDER
-19
-120
-191
-153
-n-virus
-n-virus
-1
-100
-7.0
-1
-1
-NIL
-HORIZONTAL
-
-MONITOR
-22
-173
-101
-218
-erythrocytes
-count erythrocytes
-0
-1
-11
-
-MONITOR
-106
-174
-179
-219
-leukocytes
-count leukocytes
-0
-1
-11
-
-MONITOR
-178
-173
-298
-218
-thrombocytes
-count thrombocytes
-0
-1
-11
-
-MONITOR
-264
-173
-321
-218
-viruses
-count viruses
-0
-1
-11
-
-PLOT
-20
-224
-388
-432
-CELLS IN LUNGS
-time(days)
-No of Cells
-0.0
-10.0
-0.0
-10.0
-true
-true
-"" ""
-PENS
-"Erythrocytes" 1.0 0 -2674135 true "" "plot count erythrocytes"
-"Leukocytes" 1.0 0 -11221820 true "" "plot count leukocytes"
-"Thrombocytes" 1.0 0 -1184463 true "" "plot count thrombocytes"
-"Viruses" 1.0 0 -10899396 true "" "plot count viruses"
-
 BUTTON
-86
-46
-149
 79
+10
+142
+43
 NIL
 go
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+11
+50
+123
+83
+NIL
+stop-simulation
 NIL
 1
 T
@@ -261,13 +154,13 @@ NIL
 1
 
 BUTTON
-152
-45
-215
-78
+122
+50
+203
+83
 NIL
-go
-T
+load-data
+NIL
 1
 T
 OBSERVER
@@ -276,17 +169,6 @@ NIL
 NIL
 NIL
 1
-
-MONITOR
-21
-433
-78
-478
-Days
-ticks
-0
-1
-11
 
 @#$#@#$#@
 ## WHAT IS IT?
