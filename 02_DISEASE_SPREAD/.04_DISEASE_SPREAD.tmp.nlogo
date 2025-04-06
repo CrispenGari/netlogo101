@@ -1,4 +1,3 @@
-
 ;;1. Red Blood Cells (Erythrocytes) - Carry oxygen from the lungs to the body and return carbon dioxide for exhalation.
 ;; 2. White Blood Cells (Leukocytes) – White blood cells help fight infections and clear debris in the lungs.
 ;; 3. Platelets (Thrombocytes) Function: Help with blood clotting and wound healing.
@@ -13,7 +12,6 @@ erythrocytes-own [ health ]
 leukocytes-own [ health ]
 thrombocytes-own [ health ]
 viruses-own [ toxic ]
-
 
 to setup
   clear-all
@@ -60,7 +58,11 @@ to go
   ask viruses [
     let toxicity toxic
     let killed false
-    ask other turtles-here with [breed != viruses][
+    ;let contacts other turtles with [distance myself < 0.5]
+    ;if any? contacts [
+      ; Custom reaction
+    ;]
+    ask other turtles-here with [breed != viruses and distance myself < 0.][
       ifelse breed = leukocytes[
         ;; it's a white blood cell
         ifelse toxicity < health[
