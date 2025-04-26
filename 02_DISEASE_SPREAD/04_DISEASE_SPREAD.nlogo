@@ -89,7 +89,7 @@ to go
   ; if a virus met a white blood cell it should be faught
   ask leukocytes [
     let value health
-    ask other viruses-here[
+    ask other viruses-here with [distance myself < 0.5][
       if value > toxic[
         set toxic toxic - random-float 1
       ]
@@ -97,11 +97,11 @@ to go
   ]
  ;; if a virus met another virus then both virus will have new toxicity
  ask viruses [
-    ask other viruses-here[
+    ask other viruses-here with [distance myself < 0.5][
       set toxic random-float 1
     ]
   ]
- ;; if there are only 35% of white blood cells in the body then we stop the program
+ ;; if there are only 35% of white blood cells in the lungs then we stop the program
   if count leukocytes < n-cells * .35[
     stop
   ]
@@ -175,7 +175,7 @@ n-virus
 n-virus
 1
 100
-7.0
+30.0
 1
 1
 NIL

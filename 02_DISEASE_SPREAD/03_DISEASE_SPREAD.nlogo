@@ -38,7 +38,6 @@ to go
    ask turtles [
       rt random 100
       lt random 100
-      fd random 5
   ]
 
   ifelse social-distance = false [ask humans [fd random 5]][ask humans [fd random 2]]
@@ -53,17 +52,17 @@ to go
 
       ifelse mask-on [ set %rate-of-infection (%infectious * .8)][ set %rate-of-infection (%rate-of-infection * 1)]
       ;; if you are vaccinated that boosts your immune system with a certain small fraction
-      
+
       if vaccinated? [
         let x random-float .01
         ifelse ims + x > 1[
-           set ims 1
+           set ims 1.
         ][
           set ims ims + x
         ]
       ]
 
-      if (random 100) / 100 < %rate-of-infection[
+      if random-float 1 < %rate-of-infection[
         if ims < 0.95 [
           ;; the incubation period starts
           set sick-for sick-for + 1
@@ -142,10 +141,10 @@ to-report calculate-percentage[n]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-653
-32
-1090
-470
+500
+45
+937
+483
 -1
 -1
 13.0

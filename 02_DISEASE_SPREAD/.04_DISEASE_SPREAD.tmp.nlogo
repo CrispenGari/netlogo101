@@ -62,7 +62,7 @@ to go
     ;if any? contacts [
       ; Custom reaction
     ;]
-    ask other turtles-here with [breed != viruses and distance myself < 0.][
+    ask other turtles-here with [breed != viruses and distance myself < 0.5][
       ifelse breed = leukocytes[
         ;; it's a white blood cell
         ifelse toxicity < health[
@@ -89,7 +89,7 @@ to go
   ; if a virus met a white blood cell it should be faught
   ask leukocytes [
     let value health
-    ask other viruses-here[
+    ask other viruses-here [
       if value > toxic[
         set toxic toxic - random-float 1
       ]
@@ -175,7 +175,7 @@ n-virus
 n-virus
 1
 100
-7.0
+5.0
 1
 1
 NIL

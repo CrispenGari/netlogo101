@@ -12,7 +12,7 @@ to setup
     setxy random-xcor random-ycor
     set shape "person"
     set color green
-    set ims ((random 9) + 1) / 10
+    set ims random-float 1 ;; 0 1
     set inc-p 0
     set vaccinated? false
   ]
@@ -35,7 +35,6 @@ to go
    ask turtles [
       rt random 100
       lt random 100
-      fd random 5
   ]
 
   ifelse social-distance = false [ask humans [fd random 5]][ask humans [fd random 2]]
@@ -51,9 +50,9 @@ to go
       ifelse mask-on [ set %rate-of-infection (%infectious * .8)][ set %rate-of-infection (%rate-of-infection * 1)]
       ;; if you are vaccinated that boosts your immune system with a certain fraction (0. - .2)
 
-      if vaccinated? [set ims ims + ((random 2) + 1) / 10]
+      if vaccinated? [set ims ims + random-float .2]
 
-      if (random 100) / 100 < %rate-of-infection[
+      if (random-float 1) < %rate-of-infection[
         if ims < 0.95 [
           ;; the incubation period starts
           set color yellow
@@ -71,6 +70,7 @@ to go
     ] ;; you have been infected
   ]
 
+  ;; NV = 200, vr = .1 =>
   ;; humans can get vaccinated if they haven't
   ask n-of ((count humans with [not vaccinated?]) * vaccination-rate) humans with [not vaccinated?] [
     set vaccinated? true
@@ -94,9 +94,9 @@ to-report calculate-percentage[n]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-653
+410
 32
-1090
+847
 470
 -1
 -1
@@ -213,7 +213,7 @@ population
 population
 10
 300
-150.0
+187.0
 1
 1
 NIL
@@ -241,7 +241,7 @@ SWITCH
 137
 mask-on
 mask-on
-0
+1
 1
 -1000
 
@@ -298,7 +298,7 @@ SWITCH
 177
 social-distance
 social-distance
-0
+1
 1
 -1000
 
